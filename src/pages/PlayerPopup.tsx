@@ -288,20 +288,18 @@ export default function PlayerPopup({
             onProgress={handleProgress}
             onDuration={handleDuration}
             ref={playerRef}
-            autoplay={false}
-            config={{
-              file: {
-                attributes: {
-                  // 強制把這些屬性傳到內部 <video> 標籤
-                  playsinline: "true",
-                  webkitPlaysinline: "true",
-                  // 加上這些可嘗試
-                  // disablePictureInPicture: "true"
-                  autoplay: "false",
-                  muted: "true",
-                },
-              },
-            }}
+            // config={{
+            //   file: {
+            //     attributes: {
+            //       // 強制把這些屬性傳到內部 <video> 標籤
+            //       playsinline: "true",
+            //       webkitPlaysinline: "true",
+            //       // 加上這些可嘗試
+            //       // disablePictureInPicture: "true"
+            //       // muted: "true",
+            //     },
+            //   },
+            // }}
           />
         )}
       </div>
