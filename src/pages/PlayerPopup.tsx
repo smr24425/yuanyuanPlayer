@@ -286,6 +286,12 @@ export default function PlayerPopup({
     }
   };
 
+  useEffect(() => {
+    if (videoRef.current && mediaUrl) {
+      videoRef.current.load();
+    }
+  }, [mediaUrl]);
+
   return (
     <Popup
       visible={visible}
@@ -331,7 +337,9 @@ export default function PlayerPopup({
               console.error("影片播放錯誤", e);
               Toast.show(`影片播放錯誤,${e}`);
             }}
-          />
+          >
+            <source src={mediaUrl} type={file.type || "video/mp4"} />
+          </video>
         )}
       </div>
 
