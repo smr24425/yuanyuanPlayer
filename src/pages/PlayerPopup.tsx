@@ -45,39 +45,65 @@ export default function PlayerPopup({
 
   // --- 修改處 1: 改為從 IndexedDB 載入 Blob ---
 
+  //   useEffect(() => {
+  //   if (!visible) return;
+
+  //   async function loadBlobUrl() {
+  //     if (!file?.id) {
+  //       setMediaUrl(null);
+  //       return;
+  //     }
+
+  //     try {
+  //       const fullFile = await db.mediaFiles.get(file.id);
+  //       if (!fullFile || !fullFile.file) {
+  //         Toast.show("讀取檔案失敗");
+  //         setMediaUrl(null);
+  //         return;
+  //       }
+  //       const url = URL.createObjectURL(fullFile.file);
+  //       setMediaUrl(url);
+  //     } catch (error) {
+  //       Toast.show("讀取檔案失敗");
+  //       setMediaUrl(null);
+  //       console.error(error);
+  //     }
+  //   }
+
+  //   loadBlobUrl();
+
+  //   return () => {
+  //     if (mediaUrl) {
+  //       URL.revokeObjectURL(mediaUrl);
+  //       setMediaUrl(null);
+  //     }
+  //   };
+  // }, [playingIndex, visible]);
+
+  const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
+
   useEffect(() => {
     if (!visible) return;
 
-    async function loadBlobUrl() {
+    async function loadBlob() {
       if (!file?.id) {
-        setMediaUrl(null);
+        setVideoBlob(null);
         return;
       }
-
       try {
         const fullFile = await db.mediaFiles.get(file.id);
         if (!fullFile || !fullFile.file) {
           Toast.show("讀取檔案失敗");
-          setMediaUrl(null);
+          setVideoBlob(null);
           return;
         }
-        const url = URL.createObjectURL(fullFile.file);
-        setMediaUrl(url);
-      } catch (error) {
+        setVideoBlob(fullFile.file);
+      } catch {
         Toast.show("讀取檔案失敗");
-        setMediaUrl(null);
-        console.error(error);
+        setVideoBlob(null);
       }
     }
-
-    loadBlobUrl();
-
-    return () => {
-      if (mediaUrl) {
-        URL.revokeObjectURL(mediaUrl);
-        setMediaUrl(null);
-      }
-    };
+    loadBlob();
   }, [playingIndex, visible]);
 
   // 每換歌重置狀態
@@ -94,10 +120,11 @@ export default function PlayerPopup({
   }, [currentIndex]);
 
   const togglePlay = () => {
-    if (!videoRef.current) {
-      console.warn("videoRef.current is null");
-      Toast.show("videoRef.current is null");
-      return;
+    if (!videoRef.current || !videoBlob) return;
+
+    if (!videoRef.current.src) {
+      const url = URL.createObjectURL(videoBlob);
+      videoRef.current.src = url;
     }
 
     if (videoRef.current.paused) {
@@ -119,6 +146,33 @@ export default function PlayerPopup({
       // Toast.show(`togglePlay, paused? ${videoRef.current.paused}`);
     }
   };
+
+  //  const togglePlay = () => {
+  //   if (!videoRef.current) {
+  //     console.warn("videoRef.current is null");
+  //     Toast.show("videoRef.current is null");
+  //     return;
+  //   }
+
+  //   if (videoRef.current.paused) {
+  //     videoRef.current.muted = false; // 先取消靜音
+
+  //     videoRef.current
+  //       .play()
+  //       .then(() => {
+  //         console.log("播放成功");
+  //         Toast.show("播放成功");
+  //       })
+  //       .catch((err) => {
+  //         console.error("播放失敗", err);
+  //         Toast.show(`播放失敗,${err}`);
+  //       });
+  //   } else {
+  //     videoRef.current.pause();
+  //     console.log("togglePlay, paused?", videoRef.current.paused);
+  //     Toast.show(`togglePlay, paused? ${videoRef.current.paused}`);
+  //   }
+  // };
 
   const onPlay = () => setIsPlaying(true);
   const onPause = () => setIsPlaying(false);
@@ -277,25 +331,25 @@ export default function PlayerPopup({
             onTouchEndForClicks(e);
           }}
         >
-          {mediaUrl && (
-            <video
-              ref={videoRef}
-              src={mediaUrl}
-              className="player-popup__media"
-              onPlay={onPlay}
-              onPause={onPause}
-              onLoadedMetadata={onLoadedMetadata}
-              onTimeUpdate={onTimeUpdate}
-              autoPlay={true}
-              controls={false}
-              playsInline
-              muted
-              onError={(e) => {
-                console.error("影片播放錯誤", e);
-                Toast.show(`影片播放錯誤,${e}`);
-              }}
-            />
-          )}
+          {/* {mediaUrl && ( */}
+          <video
+            ref={videoRef}
+            // src={mediaUrl}
+            className="player-popup__media"
+            onPlay={onPlay}
+            onPause={onPause}
+            onLoadedMetadata={onLoadedMetadata}
+            onTimeUpdate={onTimeUpdate}
+            autoPlay={true}
+            controls={false}
+            playsInline
+            muted
+            onError={(e) => {
+              console.error("影片播放錯誤", e);
+              Toast.show(`影片播放錯誤,${e}`);
+            }}
+          />
+          {/* )} */}
         </div>
 
         {/* Footer */}
