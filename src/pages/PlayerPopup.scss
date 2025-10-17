@@ -11,7 +11,7 @@
   opacity: 0;
   pointer-events: none;
   z-index: 20;
-  position: absolute;
+  position: fixed;
   width: 100%;
 
   &.visible {

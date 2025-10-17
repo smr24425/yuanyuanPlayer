@@ -14,7 +14,7 @@ export default defineConfig({
         short_name: "淵淵播放器",
         theme_color: "#fff",
         background_color: "#000",
-        display: "standalone",
+        display: "fullscreen",
         start_url: "/yuanyuanPlayer/",
       },
       injectRegister: "auto",
