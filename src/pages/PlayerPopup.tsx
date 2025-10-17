@@ -323,13 +323,13 @@ export default function PlayerPopup({
         {mediaUrl && (
           <video
             ref={videoRef}
-            // src={mediaUrl}
+            src={mediaUrl}
             className="player-popup__media"
             onPlay={onPlay}
             onPause={onPause}
             onLoadedMetadata={onLoadedMetadata}
             onTimeUpdate={onTimeUpdate}
-            // autoPlay={true}
+            autoPlay={true}
             controls={false}
             playsInline
             muted
@@ -338,10 +338,7 @@ export default function PlayerPopup({
               Toast.show(`影片播放錯誤,${e}`);
             }}
           >
-            <source
-              src={"https://www.w3schools.com/html/mov_bbb.mp4"}
-              type={file.type || "video/mp4"}
-            />
+            <source src={mediaUrl} type={file.type || "video/mp4"} />
           </video>
         )}
       </div>
