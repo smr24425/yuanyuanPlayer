@@ -95,25 +95,25 @@ export default function PlayerPopup({
   }, [currentIndex]);
 
   // 取得當前媒體元素 (video 或 audio)
-  const mediaElement = isVideo ? videoRef.current : audioRef.current;
+  // const mediaElement = isVideo ? videoRef.current : audioRef.current;
 
   // 播放/暫停切換
   // const togglePlay = () => {
-  //   if (!mediaElement) return;
+  //   if (!videoRef.current) return;
   //   console.log("togglePlay");
-  //   if (mediaElement.paused) mediaElement.play();
-  //   else mediaElement.pause();
+  //   if (videoRef.current.paused) videoRef.current.play();
+  //   else videoRef.current.pause();
   // };
 
   const togglePlay = () => {
-    if (!mediaElement) {
-      console.warn("mediaElement is null");
-      Toast.show("mediaElement is null");
+    if (!videoRef.current) {
+      console.warn("videoRef.current is null");
+      Toast.show("videoRef.current is null");
       return;
     }
 
-    if (mediaElement.paused) {
-      mediaElement
+    if (videoRef.current.paused) {
+      videoRef.current
         .play()
         .then(() => {
           console.log("播放成功");
@@ -124,9 +124,9 @@ export default function PlayerPopup({
           Toast.show(`播放失敗,${err}`);
         });
     } else {
-      mediaElement.pause();
-      console.log("togglePlay, paused?", mediaElement.paused);
-      Toast.show(`togglePlay, paused? ${mediaElement.paused}`);
+      videoRef.current.pause();
+      console.log("togglePlay, paused?", videoRef.current.paused);
+      Toast.show(`togglePlay, paused? ${videoRef.current.paused}`);
     }
   };
 
@@ -134,8 +134,8 @@ export default function PlayerPopup({
   const onPause = () => setIsPlaying(false);
 
   const onLoadedMetadata = () => {
-    if (!mediaElement) return;
-    setDuration(mediaElement.duration);
+    if (!videoRef.current) return;
+    setDuration(videoRef.current.duration);
   };
 
   // 拖動滑桿改變 seekTime
@@ -146,9 +146,9 @@ export default function PlayerPopup({
 
   // 拖動結束（滑鼠放開、觸控結束或 pointer 結束）時設定影片 currentTime
   const onSeekEnd = () => {
-    if (!mediaElement) return;
+    if (!videoRef.current) return;
     if (seekTime !== null) {
-      mediaElement.currentTime = seekTime;
+      videoRef.current.currentTime = seekTime;
       setCurrentTime(seekTime);
       setSeekTime(null);
     }
@@ -156,9 +156,9 @@ export default function PlayerPopup({
 
   // 播放時間更新事件，非拖動狀態才更新 currentTime
   const onTimeUpdate = () => {
-    if (!mediaElement) return;
+    if (!videoRef.current) return;
     if (seekTime === null) {
-      setCurrentTime(mediaElement.currentTime);
+      setCurrentTime(videoRef.current.currentTime);
     }
   };
 
@@ -178,7 +178,7 @@ export default function PlayerPopup({
   };
 
   const onTouchEnd = (e: React.TouchEvent) => {
-    if (!mediaElement) return;
+    if (!videoRef.current) return;
     const touchEndX = e.changedTouches[0].clientX;
     const diffX = touchEndX - touchStartX;
     if (Math.abs(diffX) < 30) {
@@ -187,13 +187,16 @@ export default function PlayerPopup({
     }
 
     if (diffX > 50) {
-      mediaElement.currentTime = Math.min(
-        mediaElement.duration,
-        mediaElement.currentTime + 30
+      videoRef.current.currentTime = Math.min(
+        videoRef.current.duration,
+        videoRef.current.currentTime + 30
       );
       Toast.show("快進30秒");
     } else if (diffX < -50) {
-      mediaElement.currentTime = Math.max(0, mediaElement.currentTime - 30);
+      videoRef.current.currentTime = Math.max(
+        0,
+        videoRef.current.currentTime - 30
+      );
       Toast.show("倒退30秒");
     }
   };
