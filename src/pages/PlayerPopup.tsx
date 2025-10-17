@@ -337,10 +337,8 @@ export default function PlayerPopup({
           onPause={onPause}
           onLoadedMetadata={onLoadedMetadata}
           onTimeUpdate={onTimeUpdate}
-          autoPlay={true}
           controls={false}
           playsInline
-          muted
           onError={(e) => {
             console.error("影片播放錯誤", e);
             Toast.show(`影片播放錯誤,${e}`);
