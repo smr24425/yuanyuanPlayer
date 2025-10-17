@@ -332,13 +332,16 @@ export default function PlayerPopup({
             // autoPlay={true}
             controls={false}
             playsInline
-            // muted
+            muted
             onError={(e) => {
               console.error("影片播放錯誤", e);
               Toast.show(`影片播放錯誤,${e}`);
             }}
           >
-            <source src={mediaUrl} type={file.type || "video/mp4"} />
+            <source
+              src={"https://www.w3schools.com/html/mov_bbb.mp4"}
+              type={file.type || "video/mp4"}
+            />
           </video>
         )}
       </div>
