@@ -40,9 +40,12 @@ export default function PlayerPopup({
   // 拖動時暫存時間
   const [seekTime, setSeekTime] = useState<number | null>(null);
 
-  // const mediaUrlRef = useRef<string | null>(null);
+  // 判斷是不是影片
+  const file = files[playingIndex];
 
-  // useEffect(() => {
+  // --- 修改處 1: 改為從 IndexedDB 載入 Blob ---
+
+  //   useEffect(() => {
   //   if (!visible) return;
 
   //   async function loadBlobUrl() {
@@ -59,13 +62,6 @@ export default function PlayerPopup({
   //         return;
   //       }
   //       const url = URL.createObjectURL(fullFile.file);
-
-  //       // 先 revoke 舊的 URL
-  //       if (mediaUrlRef.current) {
-  //         URL.revokeObjectURL(mediaUrlRef.current);
-  //       }
-
-  //       mediaUrlRef.current = url;
   //       setMediaUrl(url);
   //     } catch (error) {
   //       Toast.show("讀取檔案失敗");
@@ -77,64 +73,37 @@ export default function PlayerPopup({
   //   loadBlobUrl();
 
   //   return () => {
-  //     if (mediaUrlRef.current) {
-  //       URL.revokeObjectURL(mediaUrlRef.current);
-  //       mediaUrlRef.current = null;
+  //     if (mediaUrl) {
+  //       URL.revokeObjectURL(mediaUrl);
+  //       setMediaUrl(null);
   //     }
-  //     setMediaUrl(null);
   //   };
   // }, [playingIndex, visible]);
 
-  // 判斷是不是影片
-  const file = files[playingIndex];
+  const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
 
-  // --- 修改處 1: 改為從 IndexedDB 載入 Blob ---
   useEffect(() => {
     if (!visible) return;
 
-    async function loadBlobUrl() {
+    async function loadBlob() {
       if (!file?.id) {
-        setMediaUrl(null);
+        setVideoBlob(null);
         return;
       }
-
       try {
         const fullFile = await db.mediaFiles.get(file.id);
         if (!fullFile || !fullFile.file) {
           Toast.show("讀取檔案失敗");
-          setMediaUrl(null);
+          setVideoBlob(null);
           return;
         }
-        // const url = URL.createObjectURL(fullFile.file);
-        const reader = new FileReader();
-
-        const base64Url = await new Promise<string>((resolve, reject) => {
-          reader.onerror = reject;
-          reader.onloadend = () => {
-            if (typeof reader.result === "string") resolve(reader.result);
-            else reject("Failed to read blob as data URL");
-          };
-          fullFile && fullFile.file && reader.readAsDataURL(fullFile.file);
-        });
-
-        // console.log(base64Url)
-
-        setMediaUrl(base64Url);
-      } catch (error) {
+        setVideoBlob(fullFile.file);
+      } catch {
         Toast.show("讀取檔案失敗");
-        setMediaUrl(null);
-        console.error(error);
+        setVideoBlob(null);
       }
     }
-
-    loadBlobUrl();
-
-    return () => {
-      if (mediaUrl) {
-        URL.revokeObjectURL(mediaUrl);
-        setMediaUrl(null);
-      }
-    };
+    loadBlob();
   }, [playingIndex, visible]);
 
   // 每換歌重置狀態
@@ -151,10 +120,11 @@ export default function PlayerPopup({
   }, [currentIndex]);
 
   const togglePlay = () => {
-    if (!videoRef.current) {
-      console.warn("videoRef.current is null");
-      Toast.show("videoRef.current is null");
-      return;
+    if (!videoRef.current || !videoBlob) return;
+
+    if (!videoRef.current.src) {
+      const url = URL.createObjectURL(videoBlob);
+      videoRef.current.src = url;
     }
 
     if (videoRef.current.paused) {
@@ -176,6 +146,33 @@ export default function PlayerPopup({
       Toast.show(`togglePlay, paused? ${videoRef.current.paused}`);
     }
   };
+
+  //  const togglePlay = () => {
+  //   if (!videoRef.current) {
+  //     console.warn("videoRef.current is null");
+  //     Toast.show("videoRef.current is null");
+  //     return;
+  //   }
+
+  //   if (videoRef.current.paused) {
+  //     videoRef.current.muted = false; // 先取消靜音
+
+  //     videoRef.current
+  //       .play()
+  //       .then(() => {
+  //         console.log("播放成功");
+  //         Toast.show("播放成功");
+  //       })
+  //       .catch((err) => {
+  //         console.error("播放失敗", err);
+  //         Toast.show(`播放失敗,${err}`);
+  //       });
+  //   } else {
+  //     videoRef.current.pause();
+  //     console.log("togglePlay, paused?", videoRef.current.paused);
+  //     Toast.show(`togglePlay, paused? ${videoRef.current.paused}`);
+  //   }
+  // };
 
   const onPlay = () => setIsPlaying(true);
   const onPause = () => setIsPlaying(false);
@@ -299,12 +296,6 @@ export default function PlayerPopup({
     }
   };
 
-  // useEffect(() => {
-  //   if (videoRef.current && mediaUrl) {
-  //     videoRef.current.load();
-  //   }
-  // }, [mediaUrl]);
-
   return (
     <Popup
       visible={visible}
@@ -333,27 +324,25 @@ export default function PlayerPopup({
           onTouchEndForClicks(e);
         }}
       >
-        {mediaUrl && (
-          <video
-            ref={videoRef}
-            src={mediaUrl}
-            className="player-popup__media"
-            onPlay={onPlay}
-            onPause={onPause}
-            onLoadedMetadata={onLoadedMetadata}
-            onTimeUpdate={onTimeUpdate}
-            autoPlay={true}
-            controls={false}
-            playsInline
-            muted
-            onError={(e) => {
-              console.error("影片播放錯誤", e);
-              Toast.show(`影片播放錯誤,${e}`);
-            }}
-          >
-            {/* <source src={mediaUrl} type={file.type || "video/mp4"} /> */}
-          </video>
-        )}
+        {/* {mediaUrl && ( */}
+        <video
+          ref={videoRef}
+          // src={mediaUrl}
+          className="player-popup__media"
+          onPlay={onPlay}
+          onPause={onPause}
+          onLoadedMetadata={onLoadedMetadata}
+          onTimeUpdate={onTimeUpdate}
+          autoPlay={true}
+          controls={false}
+          playsInline
+          muted
+          onError={(e) => {
+            console.error("影片播放錯誤", e);
+            Toast.show(`影片播放錯誤,${e}`);
+          }}
+        />
+        {/* )} */}
       </div>
 
       {/* Footer */}
