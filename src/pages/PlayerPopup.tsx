@@ -171,7 +171,7 @@ export default function PlayerPopup({
             element.muted = true;
             element.play().catch((finalError) => {
               console.error("Play failed even after forced mute:", finalError);
-              Toast.show("Play failed even after forced mute:", finalError);
+              Toast.show("Play failed even after forced mute:");
             });
           }
         });
@@ -355,8 +355,11 @@ export default function PlayerPopup({
             onPause={onPause}
             onLoadedMetadata={onLoadedMetadata}
             onTimeUpdate={onTimeUpdate}
-            autoPlay
-            controls={false}
+            // autoPlay
+            muted
+            playsInline
+            // controls={false}
+            webkit-playsinline="" // ✅ 必須這樣寫
           />
         )}
       </div>
