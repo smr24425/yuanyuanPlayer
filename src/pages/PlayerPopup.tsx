@@ -98,13 +98,31 @@ export default function PlayerPopup({
   }, [currentIndex]);
 
   // 切換播放 / 暫停
+  // const togglePlay = () => {
+  //   const player = playerRef.current;
+  //   if (!player) return;
+  //   if (isPlaying) {
+  //     playerRef.current!.getInternalPlayer()?.pause?.();
+  //   } else {
+  //     playerRef.current!.getInternalPlayer()?.play?.();
+  //   }
+  // };
+
   const togglePlay = () => {
-    const player = playerRef.current;
-    if (!player) return;
-    if (isPlaying) {
-      playerRef.current!.getInternalPlayer()?.pause?.();
+    if (!isPlaying) {
+      setIsPlaying(true);
+      const player = playerRef.current?.getInternalPlayer();
+      if (player && player.play) {
+        const playPromise = player.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((error: any) => {
+            console.error("播放被拒絕:", error);
+            Toast.show(`播放被拒絕:${error}`);
+          });
+        }
+      }
     } else {
-      playerRef.current!.getInternalPlayer()?.play?.();
+      setIsPlaying(false);
     }
   };
 
