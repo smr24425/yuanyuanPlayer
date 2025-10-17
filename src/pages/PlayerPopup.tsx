@@ -260,7 +260,7 @@ export default function PlayerPopup({
         {mediaUrl && (
           <ReactPlayer
             url={mediaUrl}
-            playing={true}
+            playing={isPlaying}
             controls={false}
             playsinline={true}
             muted={true} // 加上 muted
