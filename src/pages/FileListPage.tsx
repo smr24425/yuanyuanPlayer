@@ -198,7 +198,7 @@ export function FileListPage() {
         </div>
       )}
 
-      {files.length > 0 && (
+      {files.length > 0 && popupVisible && (
         <PlayerPopup
           visible={popupVisible}
           files={files}
