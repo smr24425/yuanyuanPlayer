@@ -103,6 +103,7 @@ export default function PlayerPopup({
 
     if (!element) {
       console.error("Media element is null!");
+      Toast.show("Media element is null!");
       return;
     }
 
