@@ -98,11 +98,36 @@ export default function PlayerPopup({
   const mediaElement = isVideo ? videoRef.current : audioRef.current;
 
   // 播放/暫停切換
+  // const togglePlay = () => {
+  //   if (!mediaElement) return;
+  //   console.log("togglePlay");
+  //   if (mediaElement.paused) mediaElement.play();
+  //   else mediaElement.pause();
+  // };
+
   const togglePlay = () => {
-    if (!mediaElement) return;
-    console.log("togglePlay");
-    if (mediaElement.paused) mediaElement.play();
-    else mediaElement.pause();
+    if (!mediaElement) {
+      console.warn("mediaElement is null");
+      Toast.show("mediaElement is null");
+      return;
+    }
+
+    if (mediaElement.paused) {
+      mediaElement
+        .play()
+        .then(() => {
+          console.log("播放成功");
+          Toast.show("播放成功");
+        })
+        .catch((err) => {
+          console.error("播放失敗", err);
+          Toast.show(`播放失敗,${err}`);
+        });
+    } else {
+      mediaElement.pause();
+      console.log("togglePlay, paused?", mediaElement.paused);
+      Toast.show(`togglePlay, paused? ${mediaElement.paused}`);
+    }
   };
 
   const onPlay = () => setIsPlaying(true);
@@ -261,7 +286,7 @@ export default function PlayerPopup({
             onPause={onPause}
             onLoadedMetadata={onLoadedMetadata}
             onTimeUpdate={onTimeUpdate}
-            autoPlay={false}
+            autoPlay={true}
             controls={false}
             playsInline
             muted
@@ -274,7 +299,7 @@ export default function PlayerPopup({
             onPause={onPause}
             onLoadedMetadata={onLoadedMetadata}
             onTimeUpdate={onTimeUpdate}
-            autoPlay={false}
+            autoPlay={true}
             controls={false}
             playsInline
             muted
