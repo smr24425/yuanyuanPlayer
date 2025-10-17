@@ -99,10 +99,24 @@ export default function PlayerPopup({
 
   // 播放/暫停切換
   const togglePlay = () => {
-    if (!mediaElement) return;
-    console.log("togglePlay");
-    if (mediaElement.paused) mediaElement.play();
-    else mediaElement.pause();
+    const element = mediaElement;
+
+    if (!element) {
+      console.error("Media element is null!");
+      return;
+    }
+
+    if (element.paused) {
+      console.log("Attempting to play...");
+      // ⚠️ 關鍵：捕獲 Promise 失敗
+      element.play().catch((error) => {
+        console.error("Play failed (iOS restriction likely):", error); // 這裡可以顯示一個 Toast 或其他提示給使用者
+        Toast.show("無法播放，請確認靜音或權限");
+      });
+    } else {
+      console.log("Attempting to pause...");
+      element.pause();
+    }
   };
 
   const onPlay = () => setIsPlaying(true);
