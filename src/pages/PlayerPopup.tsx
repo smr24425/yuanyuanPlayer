@@ -303,7 +303,7 @@ export default function PlayerPopup({
                   // 加上這些可嘗試
                   // disablePictureInPicture: "true"
                   autoplay: "false",
-                  muted: "false",
+                  muted: "true",
                 },
               },
             }}
