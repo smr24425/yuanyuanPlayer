@@ -12,9 +12,9 @@ export default defineConfig({
       manifest: {
         name: "淵淵播放器",
         short_name: "淵淵播放器",
-        theme_color: "#fff",
+        theme_color: "#000",
         background_color: "#000",
-        display: "fullscreen",
+        display: "standalone",
         start_url: "/yuanyuanPlayer/",
       },
       injectRegister: "auto",
