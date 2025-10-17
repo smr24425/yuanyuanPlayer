@@ -264,8 +264,8 @@ export default function PlayerPopup({
             autoPlay
             // muted
             playsInline
-            webkit-playsinline="true"
             controls={false}
+            webkit-playsinline="" // ✅ 必須這樣寫
           />
         ) : (
           <audio
