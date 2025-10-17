@@ -261,8 +261,9 @@ export default function PlayerPopup({
           <ReactPlayer
             url={mediaUrl}
             playing={true}
-            controls={false} // ✅ 不要內建控制器
-            playsinline={true} // ✅ 禁止自動全螢幕（iOS 專用）
+            controls={false}
+            playsinline={true}
+            muted={true} // 加上 muted
             width="100%"
             height="100%"
             style={{ backgroundColor: "black" }}
@@ -271,6 +272,17 @@ export default function PlayerPopup({
             onProgress={handleProgress}
             onDuration={handleDuration}
             ref={playerRef}
+            config={{
+              file: {
+                attributes: {
+                  // 強制把這些屬性傳到內部 <video> 標籤
+                  playsinline: "true",
+                  webkitPlaysinline: "true",
+                  // 加上這些可嘗試
+                  // disablePictureInPicture: "true"
+                },
+              },
+            }}
           />
         )}
       </div>
