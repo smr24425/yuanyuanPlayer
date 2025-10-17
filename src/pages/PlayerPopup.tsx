@@ -247,10 +247,10 @@ export default function PlayerPopup({
       <div
         className="player-popup__media-container"
         onTouchStart={onTouchStart}
-        // onTouchEnd={(e) => {
-        //   onTouchEnd(e);
-        //   onTouchEndForClicks(e);
-        // }}
+        onTouchEnd={(e) => {
+          onTouchEnd(e);
+          onTouchEndForClicks(e);
+        }}
       >
         {isVideo ? (
           <video
@@ -262,7 +262,7 @@ export default function PlayerPopup({
             onLoadedMetadata={onLoadedMetadata}
             onTimeUpdate={onTimeUpdate}
             autoPlay
-            // muted
+            muted
             playsInline
             controls={false}
             webkit-playsinline="" // ✅ 必須這樣寫
