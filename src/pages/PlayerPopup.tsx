@@ -112,6 +112,7 @@ export default function PlayerPopup({
     if (!isPlaying) {
       setIsPlaying(true);
       const player = playerRef.current?.getInternalPlayer();
+      console.log(player);
       if (player && player.play) {
         const playPromise = player.play();
         if (playPromise !== undefined) {
@@ -119,6 +120,8 @@ export default function PlayerPopup({
             console.error("播放被拒絕:", error);
             Toast.show(`播放被拒絕:${error}`);
           });
+        } else {
+          Toast.show(`播放成功:${playPromise}`);
         }
       }
     } else {
@@ -290,6 +293,7 @@ export default function PlayerPopup({
             onProgress={handleProgress}
             onDuration={handleDuration}
             ref={playerRef}
+            autoplay={false}
             config={{
               file: {
                 attributes: {
@@ -298,6 +302,7 @@ export default function PlayerPopup({
                   webkitPlaysinline: "true",
                   // 加上這些可嘗試
                   // disablePictureInPicture: "true"
+                  autoplay: false,
                 },
               },
             }}
