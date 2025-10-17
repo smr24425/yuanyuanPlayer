@@ -338,7 +338,7 @@ export default function PlayerPopup({
               Toast.show(`影片播放錯誤,${e}`);
             }}
           >
-            <source src={mediaUrl} type={file.type || "video/mp4"} />
+            {/* <source src={mediaUrl} type={file.type || "video/mp4"} /> */}
           </video>
         )}
       </div>
