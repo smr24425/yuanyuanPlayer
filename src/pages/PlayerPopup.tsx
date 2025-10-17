@@ -247,10 +247,10 @@ export default function PlayerPopup({
       <div
         className="player-popup__media-container"
         onTouchStart={onTouchStart}
-        onTouchEnd={(e) => {
-          onTouchEnd(e);
-          onTouchEndForClicks(e);
-        }}
+        // onTouchEnd={(e) => {
+        //   onTouchEnd(e);
+        //   onTouchEndForClicks(e);
+        // }}
       >
         {isVideo ? (
           <video
