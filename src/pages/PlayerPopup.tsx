@@ -98,25 +98,90 @@ export default function PlayerPopup({
   const mediaElement = isVideo ? videoRef.current : audioRef.current;
 
   // 播放/暫停切換
+  // const togglePlay = () => {
+  //   const element = mediaElement;
+
+  //   if (!element) {
+  //     console.error("Media element is null!");
+  //     Toast.show("Media element is null!");
+  //     return;
+  //   }
+
+  //   if (element.paused) {
+  //     console.log("Attempting to play...");
+  //     // ⚠️ 關鍵：捕獲 Promise 失敗
+  //     element.play().catch((error) => {
+  //       console.error("Play failed (iOS restriction likely):", error); // 這裡可以顯示一個 Toast 或其他提示給使用者
+  //       Toast.show("無法播放，請確認靜音或權限");
+  //     });
+  //   } else {
+  //     console.log("Attempting to pause...");
+  //     Toast.show("Attempting to pause...");
+  //     element.pause();
+  //   }
+  // };
+
   const togglePlay = () => {
     const element = mediaElement;
 
     if (!element) {
+      // 檢查元素是否存在 (通常在影片載入前會發生)
       console.error("Media element is null!");
+      // 如果你還在使用 Toast，請繼續顯示
       Toast.show("Media element is null!");
       return;
     }
 
+    // 檢查媒體是否已準備好播放（readyState >= 1 或 2 較保險）
+    if (element.readyState < 1) {
+      // 1 = HAVE_METADATA
+      console.warn(
+        `Media not ready. ReadyState: ${element.readyState}. Attempting to load...`
+      );
+      element.load(); // 嘗試強制載入
+      Toast.show("媒體尚未完全準備好，請稍候");
+      return;
+    }
+
+    // 依賴媒體元素實際的 paused 狀態來決定下一個動作
     if (element.paused) {
+      // 當前已暫停，嘗試播放
       console.log("Attempting to play...");
-      // ⚠️ 關鍵：捕獲 Promise 失敗
-      element.play().catch((error) => {
-        console.error("Play failed (iOS restriction likely):", error); // 這裡可以顯示一個 Toast 或其他提示給使用者
-        Toast.show("無法播放，請確認靜音或權限");
-      });
+
+      // 呼叫 play() 並捕獲 Promise，這在 iOS 上是必要的
+      element
+        .play()
+        .then(() => {
+          console.log("Play succeeded.");
+          Toast.show("Play succeeded.");
+        })
+        .catch((error) => {
+          // 捕捉任何被 WebKit 拒絕的播放錯誤 (常見 NotAllowedError)
+          console.error("Play failed (iOS restriction likely):", error);
+          Toast.show("播放被阻止，請嘗試手動調整或確保靜音");
+
+          // 如果播放失敗，我們可能需要手動將 muted 設為 true 再次嘗試
+          // 這是針對一些極端情況的備用措施
+          if (element.error) {
+            console.error("Media element error:", element.error);
+            Toast.show("媒體錯誤，無法播放");
+          } else if (!element.muted) {
+            // 如果錯誤不是因為檔案本身，且它沒有靜音，嘗試強制靜音再播放
+            console.log("Trying to play after forced muting.");
+            element.muted = true;
+            element.play().catch((finalError) => {
+              console.error("Play failed even after forced mute:", finalError);
+              Toast.show("Play failed even after forced mute:", finalError);
+            });
+          }
+        });
     } else {
+      // 當前正在播放，嘗試暫停
       console.log("Attempting to pause...");
       element.pause();
+      // 暫停通常不會返回 Promise，但有時會被忽略。
+      // 如果暫停失敗，我們依賴 onPause 邏輯來處理 isPlaying 狀態的更新。
+      Toast.show("Attempting to pause...");
     }
   };
 
