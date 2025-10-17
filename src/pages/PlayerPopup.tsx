@@ -323,7 +323,7 @@ export default function PlayerPopup({
         {mediaUrl && (
           <video
             ref={videoRef}
-            src={mediaUrl}
+            // src={mediaUrl}
             className="player-popup__media"
             onPlay={onPlay}
             onPause={onPause}
