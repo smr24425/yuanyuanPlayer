@@ -98,36 +98,31 @@ export default function PlayerPopup({
   }, [currentIndex]);
 
   // 切換播放 / 暫停
+  const togglePlay = () => {
+    setIsPlaying((v) => !v);
+  };
+
   // const togglePlay = () => {
-  //   const player = playerRef.current;
-  //   if (!player) return;
-  //   if (isPlaying) {
-  //     playerRef.current!.getInternalPlayer()?.pause?.();
+  //   if (!isPlaying) {
+  //     setIsPlaying(true);
+  //     const player = playerRef.current?.getInternalPlayer();
+  //     console.log(player);
+  //     Toast.show(`播放成功:${player}`);
+  //     if (player && player.play) {
+  //       const playPromise = player.play();
+  //       if (playPromise !== undefined) {
+  //         playPromise.catch((error: any) => {
+  //           console.error("播放被拒絕:", error);
+  //           Toast.show(`播放被拒絕:${error}`);
+  //         });
+  //       } else {
+  //         Toast.show(`播放成功:${playPromise}`);
+  //       }
+  //     }
   //   } else {
-  //     playerRef.current!.getInternalPlayer()?.play?.();
+  //     setIsPlaying(false);
   //   }
   // };
-
-  const togglePlay = () => {
-    if (!isPlaying) {
-      setIsPlaying(true);
-      const player = playerRef.current?.getInternalPlayer();
-      console.log(player);
-      if (player && player.play) {
-        const playPromise = player.play();
-        if (playPromise !== undefined) {
-          playPromise.catch((error: any) => {
-            console.error("播放被拒絕:", error);
-            Toast.show(`播放被拒絕:${error}`);
-          });
-        } else {
-          Toast.show(`播放成功:${playPromise}`);
-        }
-      }
-    } else {
-      setIsPlaying(false);
-    }
-  };
 
   const handlePlay = () => {
     setIsPlaying(true);
