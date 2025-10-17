@@ -1,0 +1,70 @@
+.file-list-page {
+  user-select: none;
+
+  .list-item {
+    &.selected {
+      background-color: rgba(0, 119, 255, 0.1);
+      cursor: pointer;
+    }
+  }
+
+  .select-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+  }
+
+  .select-badge.checked {
+    background-color: #1677ff;
+  }
+
+  .select-badge.unchecked {
+    background-color: #d9d9d9;
+  }
+
+  .bottom-action-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 56px;
+    background: #fff;
+    border-top: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    gap: 12px;
+    z-index: 10;
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+
+    button.delete-btn {
+      background-color: #f5222d;
+      all: unset;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 24px;
+      color: #333;
+      user-select: none;
+      transition: color 0.2s ease;
+
+      span {
+        font-size: 12px;
+        margin-top: 2px;
+      }
+    }
+  }
+
+  .nav-right-button {
+    cursor: pointer;
+  }
+}

@@ -1,0 +1,17 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 禁止文字被選取 */
+* {
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none;     /* 舊版 Edge */
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
