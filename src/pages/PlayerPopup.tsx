@@ -262,6 +262,9 @@ export default function PlayerPopup({
             onLoadedMetadata={onLoadedMetadata}
             onTimeUpdate={onTimeUpdate}
             autoPlay
+            // muted
+            playsInline
+            webkit-playsinline="true"
             controls={false}
           />
         ) : (
