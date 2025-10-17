@@ -261,10 +261,10 @@ export default function PlayerPopup({
             onPause={onPause}
             onLoadedMetadata={onLoadedMetadata}
             onTimeUpdate={onTimeUpdate}
-            autoPlay
-            muted
+            // autoPlay
+            // muted
             playsInline
-            controls={false}
+            // controls={false}
             webkit-playsinline="" // ✅ 必須這樣寫
           />
         ) : (
