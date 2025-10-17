@@ -10,8 +10,8 @@ export default defineConfig({
     VitePWA({
       manifestFilename: "site.webmanifest",
       manifest: {
-        name: "淵淵閱讀",
-        short_name: "淵淵閱讀",
+        name: "淵淵播放器",
+        short_name: "淵淵播放器",
         theme_color: "#fff",
         background_color: "#000",
         display: "standalone",
