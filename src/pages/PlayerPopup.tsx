@@ -302,7 +302,8 @@ export default function PlayerPopup({
                   webkitPlaysinline: "true",
                   // 加上這些可嘗試
                   // disablePictureInPicture: "true"
-                  autoplay: false,
+                  autoplay: "false",
+                  muted: "false",
                 },
               },
             }}
