@@ -45,65 +45,39 @@ export default function PlayerPopup({
 
   // --- 修改處 1: 改為從 IndexedDB 載入 Blob ---
 
-  //   useEffect(() => {
-  //   if (!visible) return;
-
-  //   async function loadBlobUrl() {
-  //     if (!file?.id) {
-  //       setMediaUrl(null);
-  //       return;
-  //     }
-
-  //     try {
-  //       const fullFile = await db.mediaFiles.get(file.id);
-  //       if (!fullFile || !fullFile.file) {
-  //         Toast.show("讀取檔案失敗");
-  //         setMediaUrl(null);
-  //         return;
-  //       }
-  //       const url = URL.createObjectURL(fullFile.file);
-  //       setMediaUrl(url);
-  //     } catch (error) {
-  //       Toast.show("讀取檔案失敗");
-  //       setMediaUrl(null);
-  //       console.error(error);
-  //     }
-  //   }
-
-  //   loadBlobUrl();
-
-  //   return () => {
-  //     if (mediaUrl) {
-  //       URL.revokeObjectURL(mediaUrl);
-  //       setMediaUrl(null);
-  //     }
-  //   };
-  // }, [playingIndex, visible]);
-
-  const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
-
   useEffect(() => {
     if (!visible) return;
 
-    async function loadBlob() {
+    async function loadBlobUrl() {
       if (!file?.id) {
-        setVideoBlob(null);
+        setMediaUrl(null);
         return;
       }
+
       try {
         const fullFile = await db.mediaFiles.get(file.id);
         if (!fullFile || !fullFile.file) {
           Toast.show("讀取檔案失敗");
-          setVideoBlob(null);
+          setMediaUrl(null);
           return;
         }
-        setVideoBlob(fullFile.file);
-      } catch {
+        const url = URL.createObjectURL(fullFile.file);
+        setMediaUrl(url);
+      } catch (error) {
         Toast.show("讀取檔案失敗");
-        setVideoBlob(null);
+        setMediaUrl(null);
+        console.error(error);
       }
     }
-    loadBlob();
+
+    loadBlobUrl();
+
+    return () => {
+      if (mediaUrl) {
+        URL.revokeObjectURL(mediaUrl);
+        setMediaUrl(null);
+      }
+    };
   }, [playingIndex, visible]);
 
   // 每換歌重置狀態
@@ -120,11 +94,10 @@ export default function PlayerPopup({
   }, [currentIndex]);
 
   const togglePlay = () => {
-    if (!videoRef.current || !videoBlob) return;
-
-    if (!videoRef.current.src) {
-      const url = URL.createObjectURL(videoBlob);
-      videoRef.current.src = url;
+    if (!videoRef.current) {
+      console.warn("videoRef.current is null");
+      Toast.show("videoRef.current is null");
+      return;
     }
 
     if (videoRef.current.paused) {
@@ -134,45 +107,18 @@ export default function PlayerPopup({
         .play()
         .then(() => {
           console.log("播放成功");
-          Toast.show("播放成功");
+          // Toast.show("播放成功");
         })
         .catch((err) => {
           console.error("播放失敗", err);
-          Toast.show(`播放失敗,${err}`);
+          // Toast.show(`播放失敗,${err}`);
         });
     } else {
       videoRef.current.pause();
       console.log("togglePlay, paused?", videoRef.current.paused);
-      Toast.show(`togglePlay, paused? ${videoRef.current.paused}`);
+      // Toast.show(`togglePlay, paused? ${videoRef.current.paused}`);
     }
   };
-
-  //  const togglePlay = () => {
-  //   if (!videoRef.current) {
-  //     console.warn("videoRef.current is null");
-  //     Toast.show("videoRef.current is null");
-  //     return;
-  //   }
-
-  //   if (videoRef.current.paused) {
-  //     videoRef.current.muted = false; // 先取消靜音
-
-  //     videoRef.current
-  //       .play()
-  //       .then(() => {
-  //         console.log("播放成功");
-  //         Toast.show("播放成功");
-  //       })
-  //       .catch((err) => {
-  //         console.error("播放失敗", err);
-  //         Toast.show(`播放失敗,${err}`);
-  //       });
-  //   } else {
-  //     videoRef.current.pause();
-  //     console.log("togglePlay, paused?", videoRef.current.paused);
-  //     Toast.show(`togglePlay, paused? ${videoRef.current.paused}`);
-  //   }
-  // };
 
   const onPlay = () => setIsPlaying(true);
   const onPause = () => setIsPlaying(false);
@@ -300,108 +246,121 @@ export default function PlayerPopup({
     <Popup
       visible={visible}
       onMaskClick={onClose}
-      bodyStyle={{ padding: 0, height: "100vh", backgroundColor: "black" }}
+      bodyStyle={{
+        padding: 0,
+        height: "100vh",
+        backgroundColor: "black",
+      }}
       position="bottom"
       destroyOnClose
     >
-      {/* Header */}
-      <div className={`player-popup__header ${showControls ? "visible" : ""}`}>
-        <FaArrowLeft
-          size={20}
-          onClick={onClose}
-          className="player-popup__icon"
-        />
-        <div className="player-popup__title">{file?.name ?? ""}</div>
-        <div className="player-popup__spacer" />
-      </div>
-
-      {/* 媒體區域 */}
-      <div
-        className="player-popup__media-container"
-        onTouchStart={onTouchStart}
-        onTouchEnd={(e) => {
-          onTouchEnd(e);
-          onTouchEndForClicks(e);
-        }}
-      >
-        {/* {mediaUrl && ( */}
-        <video
-          ref={videoRef}
-          // src={mediaUrl}
-          className="player-popup__media"
-          onPlay={onPlay}
-          onPause={onPause}
-          onLoadedMetadata={onLoadedMetadata}
-          onTimeUpdate={onTimeUpdate}
-          autoPlay={true}
-          controls={false}
-          playsInline
-          muted
-          onError={(e) => {
-            console.error("影片播放錯誤", e);
-            Toast.show(`影片播放錯誤,${e}`);
-          }}
-        />
-        {/* )} */}
-      </div>
-
-      {/* Footer */}
-      <div className={`player-popup__footer ${showControls ? "visible" : ""}`}>
-        {/* 進度條 */}
-        <div className="player-popup__progress-wrapper">
-          <span className="player-popup__time">{formatTime(currentTime)}</span>
-          <input
-            type="range"
-            min={0}
-            max={duration}
-            step={0.1}
-            value={seekTime !== null ? seekTime : currentTime}
-            onChange={onSeekChange}
-            onMouseUp={onSeekEnd}
-            onTouchEnd={onSeekEnd}
-            onPointerUp={onSeekEnd} // 加這行，確保拖動結束事件被捕捉
-            className="player-popup__progress"
-            style={
-              {
-                "--progress":
-                  (seekTime !== null ? seekTime : currentTime) / duration || 0,
-              } as React.CSSProperties
-            }
+      <div style={{ position: "relative" }}>
+        {/* Header */}
+        <div
+          className={`player-popup__header ${showControls ? "visible" : ""}`}
+        >
+          <FaArrowLeft
+            size={20}
+            onClick={onClose}
+            className="player-popup__icon"
           />
-          <span className="player-popup__time">{formatTime(duration)}</span>
+          <div className="player-popup__title">{file?.name ?? ""}</div>
+          <div className="player-popup__spacer" />
         </div>
 
-        {/* 控制按鈕 */}
-        <div className="player-popup__controls">
-          <FaStepBackward
-            size={28}
-            onClick={playPrev}
-            className={`player-popup__icon ${
-              playingIndex === 0 ? "player-popup__icon--disabled" : ""
-            }`}
-          />
-          {isPlaying ? (
-            <FaPause
-              size={36}
-              onClick={togglePlay}
-              className="player-popup__icon player-popup__icon--playpause"
-            />
-          ) : (
-            <FaPlay
-              size={36}
-              onClick={togglePlay}
-              className="player-popup__icon player-popup__icon--playpause"
+        {/* 媒體區域 */}
+        <div
+          className="player-popup__media-container"
+          onTouchStart={onTouchStart}
+          onTouchEnd={(e) => {
+            onTouchEnd(e);
+            onTouchEndForClicks(e);
+          }}
+        >
+          {mediaUrl && (
+            <video
+              ref={videoRef}
+              src={mediaUrl}
+              className="player-popup__media"
+              onPlay={onPlay}
+              onPause={onPause}
+              onLoadedMetadata={onLoadedMetadata}
+              onTimeUpdate={onTimeUpdate}
+              autoPlay={true}
+              controls={false}
+              playsInline
+              muted
+              onError={(e) => {
+                console.error("影片播放錯誤", e);
+                Toast.show(`影片播放錯誤,${e}`);
+              }}
             />
           )}
-          <FaStepForward
-            size={28}
-            onClick={playNext}
-            className={`player-popup__icon ${
-              playingIndex === files.length - 1
-                ? "player-popup__icon--disabled"
-                : ""
-            }`}
-          />
+        </div>
+
+        {/* Footer */}
+        <div
+          className={`player-popup__footer ${showControls ? "visible" : ""}`}
+        >
+          {/* 進度條 */}
+          <div className="player-popup__progress-wrapper">
+            <span className="player-popup__time">
+              {formatTime(currentTime)}
+            </span>
+            <input
+              type="range"
+              min={0}
+              max={duration}
+              step={0.1}
+              value={seekTime !== null ? seekTime : currentTime}
+              onChange={onSeekChange}
+              onMouseUp={onSeekEnd}
+              onTouchEnd={onSeekEnd}
+              onPointerUp={onSeekEnd} // 加這行，確保拖動結束事件被捕捉
+              className="player-popup__progress"
+              style={
+                {
+                  "--progress":
+                    (seekTime !== null ? seekTime : currentTime) / duration ||
+                    0,
+                } as React.CSSProperties
+              }
+            />
+            <span className="player-popup__time">{formatTime(duration)}</span>
+          </div>
+
+          {/* 控制按鈕 */}
+          <div className="player-popup__controls">
+            <FaStepBackward
+              size={28}
+              onClick={playPrev}
+              className={`player-popup__icon ${
+                playingIndex === 0 ? "player-popup__icon--disabled" : ""
+              }`}
+            />
+            {isPlaying ? (
+              <FaPause
+                size={36}
+                onClick={togglePlay}
+                className="player-popup__icon player-popup__icon--playpause"
+              />
+            ) : (
+              <FaPlay
+                size={36}
+                onClick={togglePlay}
+                className="player-popup__icon player-popup__icon--playpause"
+              />
+            )}
+            <FaStepForward
+              size={28}
+              onClick={playNext}
+              className={`player-popup__icon ${
+                playingIndex === files.length - 1
+                  ? "player-popup__icon--disabled"
+                  : ""
+              }`}
+            />
+          </div>
         </div>
       </div>
     </Popup>
