@@ -259,17 +259,18 @@ export default function PlayerPopup({
       >
         {mediaUrl && (
           <ReactPlayer
-            ref={playerRef}
             url={mediaUrl}
             playing={true}
+            controls={false} // ✅ 不要內建控制器
+            playsinline={true} // ✅ 禁止自動全螢幕（iOS 專用）
             width="100%"
             height="100%"
-            controls={false}
+            style={{ backgroundColor: "black" }}
             onPlay={handlePlay}
             onPause={handlePause}
-            onDuration={handleDuration}
             onProgress={handleProgress}
-            style={{ backgroundColor: "black" }}
+            onDuration={handleDuration}
+            ref={playerRef}
           />
         )}
       </div>
