@@ -40,6 +40,51 @@ export default function PlayerPopup({
   // 拖動時暫存時間
   const [seekTime, setSeekTime] = useState<number | null>(null);
 
+  const mediaUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!visible) return;
+
+    async function loadBlobUrl() {
+      if (!file?.id) {
+        setMediaUrl(null);
+        return;
+      }
+
+      try {
+        const fullFile = await db.mediaFiles.get(file.id);
+        if (!fullFile || !fullFile.file) {
+          Toast.show("讀取檔案失敗");
+          setMediaUrl(null);
+          return;
+        }
+        const url = URL.createObjectURL(fullFile.file);
+
+        // 先 revoke 舊的 URL
+        if (mediaUrlRef.current) {
+          URL.revokeObjectURL(mediaUrlRef.current);
+        }
+
+        mediaUrlRef.current = url;
+        setMediaUrl(url);
+      } catch (error) {
+        Toast.show("讀取檔案失敗");
+        setMediaUrl(null);
+        console.error(error);
+      }
+    }
+
+    loadBlobUrl();
+
+    return () => {
+      if (mediaUrlRef.current) {
+        URL.revokeObjectURL(mediaUrlRef.current);
+        mediaUrlRef.current = null;
+      }
+      setMediaUrl(null);
+    };
+  }, [playingIndex, visible]);
+
   // 判斷是不是影片
   const file = files[playingIndex];
 
@@ -282,6 +327,10 @@ export default function PlayerPopup({
             controls={false}
             playsInline
             // muted
+            onError={(e) => {
+              console.error("影片播放錯誤", e);
+              Toast.show(`影片播放錯誤,${e}`);
+            }}
           />
         )}
       </div>
