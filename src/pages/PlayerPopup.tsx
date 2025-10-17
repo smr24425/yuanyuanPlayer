@@ -40,50 +40,50 @@ export default function PlayerPopup({
   // 拖動時暫存時間
   const [seekTime, setSeekTime] = useState<number | null>(null);
 
-  const mediaUrlRef = useRef<string | null>(null);
+  // const mediaUrlRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    if (!visible) return;
+  // useEffect(() => {
+  //   if (!visible) return;
 
-    async function loadBlobUrl() {
-      if (!file?.id) {
-        setMediaUrl(null);
-        return;
-      }
+  //   async function loadBlobUrl() {
+  //     if (!file?.id) {
+  //       setMediaUrl(null);
+  //       return;
+  //     }
 
-      try {
-        const fullFile = await db.mediaFiles.get(file.id);
-        if (!fullFile || !fullFile.file) {
-          Toast.show("讀取檔案失敗");
-          setMediaUrl(null);
-          return;
-        }
-        const url = URL.createObjectURL(fullFile.file);
+  //     try {
+  //       const fullFile = await db.mediaFiles.get(file.id);
+  //       if (!fullFile || !fullFile.file) {
+  //         Toast.show("讀取檔案失敗");
+  //         setMediaUrl(null);
+  //         return;
+  //       }
+  //       const url = URL.createObjectURL(fullFile.file);
 
-        // 先 revoke 舊的 URL
-        if (mediaUrlRef.current) {
-          URL.revokeObjectURL(mediaUrlRef.current);
-        }
+  //       // 先 revoke 舊的 URL
+  //       if (mediaUrlRef.current) {
+  //         URL.revokeObjectURL(mediaUrlRef.current);
+  //       }
 
-        mediaUrlRef.current = url;
-        setMediaUrl(url);
-      } catch (error) {
-        Toast.show("讀取檔案失敗");
-        setMediaUrl(null);
-        console.error(error);
-      }
-    }
+  //       mediaUrlRef.current = url;
+  //       setMediaUrl(url);
+  //     } catch (error) {
+  //       Toast.show("讀取檔案失敗");
+  //       setMediaUrl(null);
+  //       console.error(error);
+  //     }
+  //   }
 
-    loadBlobUrl();
+  //   loadBlobUrl();
 
-    return () => {
-      if (mediaUrlRef.current) {
-        URL.revokeObjectURL(mediaUrlRef.current);
-        mediaUrlRef.current = null;
-      }
-      setMediaUrl(null);
-    };
-  }, [playingIndex, visible]);
+  //   return () => {
+  //     if (mediaUrlRef.current) {
+  //       URL.revokeObjectURL(mediaUrlRef.current);
+  //       mediaUrlRef.current = null;
+  //     }
+  //     setMediaUrl(null);
+  //   };
+  // }, [playingIndex, visible]);
 
   // 判斷是不是影片
   const file = files[playingIndex];
@@ -105,8 +105,21 @@ export default function PlayerPopup({
           setMediaUrl(null);
           return;
         }
-        const url = URL.createObjectURL(fullFile.file);
-        setMediaUrl(url);
+        // const url = URL.createObjectURL(fullFile.file);
+        const reader = new FileReader();
+
+        const base64Url = await new Promise<string>((resolve, reject) => {
+          reader.onerror = reject;
+          reader.onloadend = () => {
+            if (typeof reader.result === "string") resolve(reader.result);
+            else reject("Failed to read blob as data URL");
+          };
+          fullFile && fullFile.file && reader.readAsDataURL(fullFile.file);
+        });
+
+        // console.log(base64Url)
+
+        setMediaUrl(base64Url);
       } catch (error) {
         Toast.show("讀取檔案失敗");
         setMediaUrl(null);
@@ -286,11 +299,11 @@ export default function PlayerPopup({
     }
   };
 
-  useEffect(() => {
-    if (videoRef.current && mediaUrl) {
-      videoRef.current.load();
-    }
-  }, [mediaUrl]);
+  // useEffect(() => {
+  //   if (videoRef.current && mediaUrl) {
+  //     videoRef.current.load();
+  //   }
+  // }, [mediaUrl]);
 
   return (
     <Popup
