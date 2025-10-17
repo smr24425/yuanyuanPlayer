@@ -42,8 +42,6 @@ export default function PlayerPopup({
 
   // 判斷是不是影片
   const file = files[playingIndex];
-  const isVideo =
-    file?.type.startsWith("video/") || file?.name.endsWith(".mp4");
 
   // --- 修改處 1: 改為從 IndexedDB 載入 Blob ---
   useEffect(() => {
@@ -94,17 +92,6 @@ export default function PlayerPopup({
     setPlayingIndex(currentIndex);
   }, [currentIndex]);
 
-  // 取得當前媒體元素 (video 或 audio)
-  // const mediaElement = isVideo ? videoRef.current : audioRef.current;
-
-  // 播放/暫停切換
-  // const togglePlay = () => {
-  //   if (!videoRef.current) return;
-  //   console.log("togglePlay");
-  //   if (videoRef.current.paused) videoRef.current.play();
-  //   else videoRef.current.pause();
-  // };
-
   const togglePlay = () => {
     if (!videoRef.current) {
       console.warn("videoRef.current is null");
@@ -113,6 +100,8 @@ export default function PlayerPopup({
     }
 
     if (videoRef.current.paused) {
+      videoRef.current.muted = false; // 先取消靜音
+
       videoRef.current
         .play()
         .then(() => {
@@ -280,32 +269,19 @@ export default function PlayerPopup({
           onTouchEndForClicks(e);
         }}
       >
-        {isVideo ? (
+        {mediaUrl && (
           <video
             ref={videoRef}
-            src={mediaUrl || undefined}
+            src={mediaUrl}
             className="player-popup__media"
             onPlay={onPlay}
             onPause={onPause}
             onLoadedMetadata={onLoadedMetadata}
             onTimeUpdate={onTimeUpdate}
-            autoPlay={true}
+            // autoPlay={true}
             controls={false}
             playsInline
-            muted
-          />
-        ) : (
-          <audio
-            ref={audioRef}
-            src={mediaUrl || undefined}
-            onPlay={onPlay}
-            onPause={onPause}
-            onLoadedMetadata={onLoadedMetadata}
-            onTimeUpdate={onTimeUpdate}
-            autoPlay={true}
-            controls={false}
-            playsInline
-            muted
+            // muted
           />
         )}
       </div>
