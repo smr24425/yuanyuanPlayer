@@ -270,7 +270,6 @@ export default function PlayerPopup({
             onDuration={handleDuration}
             onProgress={handleProgress}
             style={{ backgroundColor: "black" }}
-            playsinline
           />
         )}
       </div>
